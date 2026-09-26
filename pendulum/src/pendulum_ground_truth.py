@@ -1,33 +1,18 @@
 import os
-import mujoco                   # type: ignore
-import numpy as np              # type: ignore
-import matplotlib.pyplot as plt # type: ignore
-from matplotlib.animation import FuncAnimation, PillowWriter #type:ignore
+import mujoco  # type: ignore
+import numpy as np  # type: ignore
+import matplotlib.pyplot as plt  # type: ignore
+from matplotlib.animation import FuncAnimation, PillowWriter  # type: ignore
 from datetime import datetime
-
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULT_DIR = os.path.join(SCRIPT_DIR, "..", "result")
 os.makedirs(RESULT_DIR, exist_ok=True)
 
 # ─────────────────────────────────────────────
-# SINGLE SOURCE OF TRUTH: every physical parameter, defined ONCE, with units labeled.
-# Both the XML below AND any hand-derived formula (I = (1/3)mL², etc.) must reference these variables, never a separately typed number.
-# ─────────────────────────────────────────────
-
-GRAVITY = 9.81           # m/s^2, foundational (measured constant)
-TIMESTEP = 0.001         # s, foundational (numerical choice)
-ARM_LENGTH = 0.5         # m, foundational (your choice for this experiment)
-ARM_RADIUS = 0.02        # m, foundational (capsule thickness, cosmetic only, see earlier discussion)
-ARM_MASS = 1.0           # kg, foundational, ALSO one of your three unknowns for the inverse problem
-DAMPING = 0.1            # N*m*s/rad, foundational, unknown #2
-FRICTIONLOSS = 0.03      # N*m, foundational, unknown #3
-
-
-# ─────────────────────────────────────────────
 # STEP 1: Define the pendulum as a MuJoCo XML model
 #
-# This XML describes the STRUCTURE of the system (a hinge joint, an arm, gravity). 
+# This XML describes the STRUCTURE of the system (a hinge joint, an arm, gravity).
 # The structure is FOUNDATIONAL, you are choosing it, MuJoCo does not derive it for you.
 #
 # mass = 1.0 kg
@@ -42,6 +27,19 @@ FRICTIONLOSS = 0.03      # N*m, foundational, unknown #3
 # mass = 1.0 kg - the mass of the tube
 # ─────────────────────────────────────────────
 
+GRAVITY = 9.81  # m/s^2, foundational (measured constant)
+TIMESTEP = 0.001  # s, foundational (numerical choice)
+ARM_LENGTH = 0.5  # m, foundational (your choice for this experiment)
+ARM_RADIUS = (
+    0.02  # m, foundational (capsule thickness, cosmetic only, see earlier discussion)
+)
+ARM_MASS = (
+    1.0  # kg, foundational, ALSO one of your three unknowns for the inverse problem
+)
+DAMPING = 0.1  # N*m*s/rad, foundational, unknown #2
+FRICTIONLOSS = 0.03  # N*m, foundational, unknown #3
+
+
 xml = f"""
 <mujoco>
     <option gravity="0 0 -{GRAVITY}" timestep="{TIMESTEP}"/>
@@ -54,8 +52,8 @@ xml = f"""
 </mujoco>
 """
 
-model = mujoco.MjModel.from_xml_string(xml) # blueprint
-data = mujoco.MjData(model)                 # object
+model = mujoco.MjModel.from_xml_string(xml)  # blueprint
+data = mujoco.MjData(model)  # object
 
 # ─────────────────────────────────────────────
 # STEP 2: Set initial condition and run the simulation
@@ -64,13 +62,15 @@ data = mujoco.MjData(model)                 # object
 # This initial angle is FOUNDATIONAL, a choice you made for this experiment, not something derived.
 # ─────────────────────────────────────────────
 
-INITIAL_ANGLE_DEG = 90                              # 90°
-INITIAL_ANGLE_RAD = np.deg2rad(INITIAL_ANGLE_DEG)   # 1.57 rad
+INITIAL_ANGLE_DEG = 90  # 90°
+INITIAL_ANGLE_RAD = np.deg2rad(INITIAL_ANGLE_DEG)  # 1.57 rad
+N_STEPS = 5000  # 5000 * 0.001s TIMESTEP = 5 seconds of simulation
+ANGLE_NOISE_STD = 0.01  # rad, foundational, your choice for sensor quality
+TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-data.qpos[0] = INITIAL_ANGLE_RAD    # set starting angle - 1.57 rad starting angle
-data.qvel[0] = 0.0                  # start at rest - zero angular velocity
 
-N_STEPS = 5000     # 5000 * 0.001s TIMESTEP = 5 seconds of simulation
+data.qpos[0] = INITIAL_ANGLE_RAD  # set starting angle - 1.57 rad starting angle
+data.qvel[0] = 0.0  # start at rest - zero angular velocity
 
 time_log = []
 angle_log = []
@@ -79,21 +79,36 @@ x_log = []
 z_log = []
 
 for step in range(N_STEPS):
-    mujoco.mj_step(model, data)     # advance the simulation by the TIMESTEP
-    time_log.append(step * model.opt.timestep) # model.opt.timestep = TIMESTEP
-    x_log.append(ARM_LENGTH * np.sin(data.qpos[0])) 
+    mujoco.mj_step(model, data)  # advance the simulation by the TIMESTEP
+    time_log.append(step * model.opt.timestep)  # model.opt.timestep = TIMESTEP
+    x_log.append(ARM_LENGTH * np.sin(data.qpos[0]))
     z_log.append(-ARM_LENGTH * np.cos(data.qpos[0]))
     angle_log.append(data.qpos[0])
     velocity_log.append(data.qvel[0])
+
+# Add noise ONLY to the fundamental measured quantity: angle (x and z derived from the angle)
+angle_log_noisy = [angle + np.random.normal(0, ANGLE_NOISE_STD) for angle in angle_log]
+
+np.savez(
+    os.path.join(RESULT_DIR, f"ground_truth_data_{TIMESTAMP}.npz"),
+    time_log=np.array(time_log),
+    angle_log=np.array(angle_log),
+    angle_log_noisy=np.array(angle_log_noisy),
+    velocity_log=np.array(velocity_log),
+    x_log=np.array(x_log),
+    z_log=np.array(z_log),
+    true_mass=ARM_MASS,
+    true_damping=DAMPING,
+    true_frictionloss=FRICTIONLOSS,
+    true_arm_length=ARM_LENGTH,
+)
 
 # ─────────────────────────────────────────────
 # STEP 3: Plot the results, sanity check
 #
 # Two SEPARATE figures: one for angle/velocity over time, one for the tip's actual x-z trajectory.
-# Both filenames include a timestamp so repeated runs don't silently overwrite each other.
+# Both filenames include a TIMESTAMP so repeated runs don't silently overwrite each other.
 # ─────────────────────────────────────────────
-
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 # ─────────────────────────────────────────────
 # FIGURE 1: angle and angular velocity over time
@@ -112,7 +127,7 @@ axes1[1].set_xlabel("Time (s)")
 axes1[1].grid(True)
 
 fig1.tight_layout()
-fig1.savefig(os.path.join(RESULT_DIR, f"pendulum_angle_velocity_{timestamp}.png"))
+fig1.savefig(os.path.join(RESULT_DIR, f"pendulum_angle_velocity_{TIMESTAMP}.png"))
 
 # ─────────────────────────────────────────────
 # FIGURE 2: tip trajectory in x-z space
@@ -128,7 +143,7 @@ ax2.axis("equal")
 ax2.grid(True)
 
 fig2.tight_layout()
-fig2.savefig(os.path.join(RESULT_DIR, f"pendulum_trajectory_{timestamp}.png"))
+fig2.savefig(os.path.join(RESULT_DIR, f"pendulum_trajectory_{TIMESTAMP}.png"))
 
 # ─────────────────────────────────────────────
 # STEP 4: Build an animated GIF of the pendulum swinging
@@ -136,26 +151,34 @@ fig2.savefig(os.path.join(RESULT_DIR, f"pendulum_trajectory_{timestamp}.png"))
 # Only keep every Nth frame, so the GIF isn't 3000 frames long and slow to render.
 # ─────────────────────────────────────────────
 
+FRAME_SKIP = 50  # Only keeping every 50th step
+
+
 # fps = number_of_frames / total_duration = (N_STEPS / FRAME_SKIP) / (N_STEPS × TIMESTEP) = 1 / (FRAME_SKIP × TIMESTEP)
 # count how many indices survived the FRAME_SKIP filtering, then divide by the total real duration
-# each frame that we selected should maintain at least 
-FRAME_SKIP = 50                                         # Only keeping every 50th step
-frame_indices = range(0, N_STEPS, FRAME_SKIP)           # 0, 50, 100, ..., 4950 (N_STEP=5000) -> 100 indices kept
-total_duration = N_STEPS * model.opt.timestep           # N_STEPS * TIMESTEP = 5000 * 0.001 = 5 sec
-real_time_per_frame = FRAME_SKIP * model.opt.timestep   # 50 * 0.001 = 0.05 sec
-matched_fps = 1 / real_time_per_frame                   # 1 / 0.05 = 20 frames per sec -> need to display 20 frames every real second to match the real simulation duration.
+# each frame that we selected should maintain at least
+frame_indices = range(
+    0, N_STEPS, FRAME_SKIP
+)  # 0, 50, 100, ..., 4950 (N_STEP=5000) -> 100 indices kept
+total_duration = (
+    N_STEPS * model.opt.timestep
+)  # N_STEPS * TIMESTEP = 5000 * 0.001 = 5 sec
+real_time_per_frame = FRAME_SKIP * model.opt.timestep  # 50 * 0.001 = 0.05 sec
+matched_fps = (
+    1 / real_time_per_frame
+)  # 1 / 0.05 = 20 frames per sec -> need to display 20 frames every real second to match the real simulation duration.
 
 fig3, (ax3, ax_bar) = plt.subplots(
     2, 1, figsize=(5, 6), gridspec_kw={"height_ratios": [13, 1]}
 )
 
-ax3.set_xlim(-ARM_LENGTH * 1.2, ARM_LENGTH * 1.2) # 1.2 adds a 20% margin on every side
+ax3.set_xlim(-ARM_LENGTH * 1.2, ARM_LENGTH * 1.2)  # 1.2 adds a 20% margin on every side
 ax3.set_ylim(-ARM_LENGTH * 1.2, ARM_LENGTH * 1.2)
 ax3.set_aspect("equal")
 ax3.grid(True)
 ax3.set_title("Pendulum swing animation")
 
-rod_line, = ax3.plot([], [], "o-", linewidth=2, markersize=8)
+(rod_line,) = ax3.plot([], [], "o-", linewidth=2, markersize=8)
 
 ax_bar.set_xlim(0, total_duration)
 ax_bar.set_ylim(0, 1)
@@ -164,9 +187,16 @@ ax_bar.set_xlabel("Time (s)")
 
 progress_fill = ax_bar.barh(0.5, 0, height=1.0, color="steelblue")[0]
 time_text = ax_bar.text(
-    total_duration / 2, 0.5, "",
-    ha="center", va="center", color="black", fontsize=12, fontweight="bold"
+    total_duration / 2,
+    0.5,
+    "",
+    ha="center",
+    va="center",
+    color="black",
+    fontsize=12,
+    fontweight="bold",
 )
+
 
 def update(frame_index):
     x_tip = x_log[frame_index]
@@ -179,10 +209,11 @@ def update(frame_index):
 
     return rod_line, progress_fill, time_text
 
+
 animation = FuncAnimation(fig3, update, frames=frame_indices, interval=30, blit=True)
 
 animation.save(
-    os.path.join(RESULT_DIR, f"pendulum_swing_{timestamp}.gif"),
+    os.path.join(RESULT_DIR, f"pendulum_swing_{TIMESTAMP}.gif"),
     writer=PillowWriter(fps=matched_fps),
 )
 
