@@ -64,7 +64,7 @@ data = mujoco.MjData(model)                 # object
 # This initial angle is FOUNDATIONAL, a choice you made for this experiment, not something derived.
 # ─────────────────────────────────────────────
 
-INITIAL_ANGLE_DEG = 90.0                            # 90°
+INITIAL_ANGLE_DEG = 90                              # 90°
 INITIAL_ANGLE_RAD = np.deg2rad(INITIAL_ANGLE_DEG)   # 1.57 rad
 
 data.qpos[0] = INITIAL_ANGLE_RAD    # set starting angle - 1.57 rad starting angle
@@ -165,7 +165,7 @@ ax_bar.set_xlabel("Time (s)")
 progress_fill = ax_bar.barh(0.5, 0, height=1.0, color="steelblue")[0]
 time_text = ax_bar.text(
     total_duration / 2, 0.5, "",
-    ha="center", va="center", color="white", fontsize=10
+    ha="center", va="center", color="black", fontsize=12, fontweight="bold"
 )
 
 def update(frame_index):
