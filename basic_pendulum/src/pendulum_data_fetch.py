@@ -1,6 +1,6 @@
 import os
 import glob
-import numpy as np  # type: ignore #
+import numpy as np  # type: ignore
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULT_DIR = os.path.join(SCRIPT_DIR, "..", "result")
