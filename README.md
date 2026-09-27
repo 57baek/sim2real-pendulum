@@ -19,7 +19,7 @@ First MuJoCo tutorial: simulate a damped pendulum, generate noisy ground-truth d
 - `src/pendulum_data_fetch.py` — loads the most recent `ground_truth_data_*.npz` from `result/` for downstream use (e.g. the inverse problem)
 - `result/` — generated outputs (timestamped `.npz` data, angle/velocity plots, trajectory plot, swing animation)
 
-Run:
+Run (from `basic_pendulum/`):
 ```
 python src/pendulum.py
 ```
