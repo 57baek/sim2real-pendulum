@@ -1,6 +1,9 @@
+# OS
 .DS_Store
 .claude
+CLAUDE.md
 
+# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -13,3 +16,7 @@ build/
 dist/
 .pytest_cache/
 .mypy_cache/
+
+# Log
+MUJOCO_LOG.TXT
+archive/
