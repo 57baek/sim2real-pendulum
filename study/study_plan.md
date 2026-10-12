@@ -1,12 +1,12 @@
-# sim2real: Study Plan (Chapter 1 only)
+# sim2real: Study Plan (all chapters)
 
-Written 2026-10-11, revised the same day (v2). A separate, short plan for learning. It does not replace `plan.md` (the project plan); `plan.md` Section 6 points here.
+Written 2026-10-11. Last updated: 2026-10-12 09:47:20 EDT. A separate, short plan for learning, covering all three chapters. It does not replace `plan.md` (the project plan); `plan.md` Section 6 points here. Chapter 1 is detailed below. Chapters 2 and 3 are filled in as we go, when each chapter starts, so nothing is planned in detail before it is needed.
 
 Labels: FOUNDATIONAL = a given or chosen input (not derivable). DERIVED = follows from other equations.
 
 ---
 
-## The goal in one sentence
+## The goal in one sentence (Chapter 1)
 
 Read and fully understand the Stage 1.1 MuJoCo notebook line by line, filling gaps live. Then study the extra concepts (cross product, right-hand rule, T5, T6, the full tensor). Then build the same gimbal rod system by hand and match MuJoCo.
 
@@ -20,7 +20,7 @@ Read and fully understand the Stage 1.1 MuJoCo notebook line by line, filling ga
 
 ---
 
-## Guardrails (so prerequisites do not eat the project)
+## Guardrails (apply to all chapters)
 
 ### Deliverables (what "done" means)
 
@@ -50,6 +50,10 @@ Every lesson is labeled **ON-PATH** (D1 to D3 cannot be done without it) or **OF
 Phase 1 (D1, D2), then Phase 3 (D3), then Phase 2 (extras). The phase numbers are kept so other files stay valid. If a Phase 3 step turns out to need one Phase 2 lesson (for example BAC-CAB for the tensor), only that lesson is pulled in just in time.
 
 ---
+
+# CHAPTER 1: Mathematical modeling (MATH441)
+
+The three phases below belong to Chapter 1.
 
 ## PHASE 1: Read the notebook line by line, fill gaps live
 
@@ -143,6 +147,26 @@ Exit: a hand-coded 3D simulator (no MuJoCo call) matches MuJoCo within the state
 
 ---
 
+# CHAPTER 2: Inverse problem (MATH440)
+
+Not detailed yet. Filled in when Chapter 1 reaches its exit. The code pieces are fixed in `plan.md` Section 2A (stages 2.1 to 2.7). The same method applies: for each code piece, ask what it does, what it is compared against, and teach only the gaps live. Anything not needed goes to `parking_lot.md`.
+
+| Step | Code piece (from plan.md Section 2A) | Lessons needed | State |
+|---|---|---|---|
+| 2.1 to 2.7 | data generation, noise models, hand Gauss-Newton and LM vs scipy, SVD, Tikhonov, covariance, covariance-guided ranges | to be listed when the chapter starts | NOT STARTED |
+
+---
+
+# CHAPTER 3: Machine learning (CSDS 440)
+
+Not detailed yet. Filled in when Chapter 2 reaches its exit. The core tiers are fixed in `plan.md` Section 2A (0, 2, 3, 5, 7, 8; tier 6 pending the owner's decision; tiers 1 and 4 parked).
+
+| Step | Code piece (from plan.md Section 2A) | Lessons needed | State |
+|---|---|---|---|
+| tiers 0, 2, 3, 5, 7, 8 | hand LQR (via 1.9), PPO then SAC, domain randomization, system identification then RL, Isaac Sim/Lab, synthetic data | to be listed when the chapter starts | NOT STARTED |
+
+---
+
 ## Parking lot
 
 Interesting concepts that are not needed for the project are logged in `parking_lot.md` (same folder) instead of being studied now. Claude adds a row and says "Parked: <name>" in one line, then the lesson continues. The list is reviewed after the hand simulator works (Phase 3 exit), or earlier if an item turns out to be needed.
@@ -156,6 +180,14 @@ LQR, nondimensionalization, noise and sensors, the chapter report, and Chapters 
 | Item | State |
 |---|---|
 | Torque lessons T1 to T5, omega arrow, alpha arrow, torque arrow, 3D torque as three flat torques | taught in chat; owner's notes cover through the 3D torque formula |
-| Phase 1 (notebook line by line) | NEXT: Part 0, then Part 1A with L1 to L3 |
-| Phase 3 (build by hand) | after Phase 1 |
-| Phase 2 (extra concepts) | after Phase 3 (D3), pull-in only if needed |
+| Chapter 1, Phase 1 (notebook line by line) | NEXT: Part 0, then Part 1A with L1 to L3 |
+| Chapter 1, Phase 3 (build by hand) | after Phase 1 |
+| Chapter 1, Phase 2 (extra concepts) | after Phase 3 (D3), pull-in only if needed |
+
+## Change log
+
+| Date and time | Change |
+|---|---|
+| 2026-10-11 | Created: Phase 1 (notebook line by line), Phase 2 (extra concepts), Phase 3 (build by hand); guardrails D1 to D3; parking lot pointer; execution order Phase 1, Phase 3, Phase 2 |
+| 2026-10-12 09:46:25 EDT | Timestamp and change log added. Plan.md is now v5.0 with the code-path rule (Section 2A); tier 4 parked. No lesson changes. |
+| 2026-10-12 09:47:20 EDT | Study plan now covers all chapters: Chapter 1 detailed, Chapters 2 and 3 as placeholders to fill in as we go. Guardrails marked as applying to all chapters. |

@@ -1,6 +1,6 @@
 # sim2real: Project Plan (for Claude Code)
 
-Status: v4.8, written 2026-10-11 EDT. Replaces v4.7 (same day). Replaces plan v4.5 (not archived separately; v4.5 only added the long Math relearning track that v4.6 removes) and v4.4 (kept in `archive/plan/PLAN_v4.4.MD`; v4.3 is in `archive/plan/PLAN_v4.3.MD`; v4.2 is in `archive/plan/PLAN_v4.2.MD`; v4.1 is in `archive/plan/PLAN_v4.1.MD`; v4 is in `archive/plan/PLAN_v4.MD`). Timestamps in this file use the real local date and time (`date "+%Y-%m-%d %H:%M:%S %Z"`). Older plans and logs are in `archive/plan/` and `sim2real_reference_archive.md` (read them only when a past decision must be revisited).
+Status: v5.0, written 2026-10-12 09:46:25 EDT. Replaces v4.9 (v4.9 and v4.8 only added the code-path rule, guardrails and the parking lot; backups are not in `archive/plan/`). Replaces plan v4.5 (not archived separately; v4.5 only added the long Math relearning track that v4.6 removes) and v4.4 (kept in `archive/plan/PLAN_v4.4.MD`; v4.3 is in `archive/plan/PLAN_v4.3.MD`; v4.2 is in `archive/plan/PLAN_v4.2.MD`; v4.1 is in `archive/plan/PLAN_v4.1.MD`; v4 is in `archive/plan/PLAN_v4.MD`). Timestamps in this file use the real local date and time (`date "+%Y-%m-%d %H:%M:%S %Z"`). Older plans and logs are in `archive/plan/` and `sim2real_reference_archive.md` (read them only when a past decision must be revisited).
 
 Labels used in this file:
 - FOUNDATIONAL = a number or choice we make or measure. Not derivable.
@@ -28,6 +28,7 @@ Read this section first. These are the owner's standing rules.
 8. **No em dashes** in any output, file, or comment. Use a hyphen or a comma.
 9. **Do not touch** `study/tutorial/` (Chapter 0, finished).
 10. Results from notebooks are saved under the notebook's own folder in `result/`.
+11. **Strictly follow the code path (v4.9).** The core path is Section 2A: every core stage ends in a code piece that runs and prints a number or a plot compared with something (MuJoCo, scipy, a theory curve). Anything else (reading lists, side theory, optional directions, edge cases) is PARKED in `study/parking_lot.md` and is not worked on until the owner promotes it. When something interesting comes up, add a row to the parking lot and continue. Course reports are COURSE write-ups, done after the chapter's code works.
 
 ---
 
@@ -66,11 +67,69 @@ Read this section first. These are the owner's standing rules.
 | Chapter 1, notebook walkthrough (owner reads the Stage 1.1 notebook part by part, before any hand math) | IN PROGRESS. Part 0 (imports, result folder) and Part 1A (constants) done. Part 1B (XML model) is next, then Part 2 (model checks), 3 (run_fall), 4 (main run and saving), 5 (extra runs and physics checks), 6 (plots), 7 (GIF). The derived constants are being taught one by one: moment of inertia about the center of mass and about the long axis (taught, with the diaginertia naming), the parallel-axis step and OMEGA_UNSTABLE (still to teach). |
 | Chapter 1, Stage 1.2 onward | NOT STARTED |
 | Chapters 2 and 3 | NOT STARTED |
-| Future direction: realistic rods and edge cases (optional, not a chapter) | NOT STARTED, only after Chapter 3. See Section 8A. |
-| Reading list (Section 9A) | NOT STARTED. Paper 1 is the Muratore et al. review. Reading needs no code. |
+| Future direction: realistic rods and edge cases (optional, not a chapter) | PARKED. See Section 8A and `study/parking_lot.md`. |
+| Reading list (Section 9A) | PARKED (not code). See `study/parking_lot.md`. |
 | Prerequisites for 3D rotation (torque, cross product, right-hand rule, inertia tensor) | IN PROGRESS, follows `study/study_plan.md` (Phase 1: read the notebook line by line and fill gaps live, Phase 2: extra concepts such as cross product, right-hand rule, T5, T6, Phase 3: build the system by hand). Torque lessons T1 to T5 are taught in chat; the owner's notes cover through the 3D torque formula. |
 
-**Next action:** follow `study/study_plan.md`. Phase 1: read the notebook from Part 0, line by line, with gaps taught live (Part 1A first: I_zz and its naming, parallel axis, OMEGA_UNSTABLE; Part 1B: inertia tensor, diaginertia). Then Phase 2 (cross product, right-hand rule, T5, T6, the full tensor), then Phase 3 (build the system by hand, Stages 1.2 to 1.8). See Sections 6 and 13. In parallel, no code: read paper 1 of the reading list (Section 9A).
+**Next action:** follow `study/study_plan.md`. Phase 1: read the notebook from Part 0, line by line, with gaps taught live (Part 1A first: I_zz and its naming, parallel axis, OMEGA_UNSTABLE; Part 1B: inertia tensor, diaginertia). Then Phase 2 (cross product, right-hand rule, T5, T6, the full tensor), then Phase 3 (build the system by hand, Stages 1.2 to 1.8). See Sections 6 and 13.
+
+---
+
+## 2A. Core path (code only)
+
+A stage is CORE only if it ends in a code piece that runs and prints a number or a plot compared with something. Everything else is PARKED (Section 0, rule 11). Learning order inside Chapter 1 is in `study/study_plan.md`.
+
+### Chapter 1: Mathematical modeling (MATH441)
+
+| Stage | Code piece | Compared against | State |
+|---|---|---|---|
+| 1.1 | MuJoCo gimbal notebook | its own checks (tip, mass matrix, growth, energy) | DONE |
+| 1.2 | hand tip function (numpy only) | saved MuJoCo tip data, max error | NEXT after the notebook is understood |
+| 1.3 | hand inertia: I_pivot, hinge inertias, mass matrix M(q) | MuJoCo mass matrix at several poses | |
+| 1.4 | hand kinetic energy T(q, q_dot) and potential energy V(q) | MuJoCo energy readout | |
+| 1.5 | hand Euler-Lagrange equations plus hand RK4, frictionless | MuJoCo trajectories | |
+| 1.6 | damping, Coulomb friction (tanh), motor torque and saturation in the hand simulator | MuJoCo trajectories with them on | |
+| 1.7 | explicit Euler vs RK4 vs semi-implicit, step size, energy drift script | theory (Euler energy factor 1 + omega^2 dt^2) | |
+| 1.8 | hand linearization: Jacobian, eigenvalues, controllability | +-3.836 1/s, MuJoCo growth check | |
+| 1.9 | hand LQR (Riccati) balancing the rod | hand simulator and MuJoCo | |
+| 1.10 | nondimensionalization script (dimensionless curves collapse) | the dimensional simulation | |
+| 1.11 | noise and sensors in the hand simulator (encoder noise, quantization, delay) | noise-free run | |
+| 1.12 | COURSE: MATH441 report | | after 1.1 to 1.11 work |
+
+### Chapter 2: Inverse problem (MATH440)
+
+| Stage | Code piece | Compared against | State |
+|---|---|---|---|
+| 2.1 | data generation script from MuJoCo (forward map, excitation) | the hand forward model | |
+| 2.2 | noise model functions (Gaussian, colored, bias, quantization, delay, dropouts) | clean data | |
+| 2.3 | hand Gauss-Newton and Levenberg-Marquardt | scipy `least_squares` | |
+| 2.4 | SVD and condition number of the Jacobian | theory (unidentifiable directions) | |
+| 2.5 | Tikhonov regularization, choice of lambda | unregularized fit | |
+| 2.6 | covariance and Fisher information, parameter ranking | repeated-fit scatter | |
+| 2.7 | covariance-guided randomization ranges (input to the research question) | random or uniform ranges | |
+| 2.8 | COURSE: MATH440 report | | |
+
+### Chapter 3: Machine learning (CSDS 440)
+
+| Tier | Code piece | State |
+|---|---|---|
+| 0 | hand LQR (done in Stage 1.9) | via 1.9 |
+| 2 | physics-only RL: PPO then SAC, package first then hand-coded | |
+| 3 | physics-only RL with domain randomization: random vs covariance-guided ranges | |
+| 5 | system identification (Chapter 2), then RL | |
+| 7 | Isaac Sim / Isaac Lab: parallel PPO, USD model, randomization (owner's GPU PC) | |
+| 8 | synthetic-data training from Isaac, fine-tune on scarce real data | |
+| 6 | learned dynamics (NN world model) | PENDING OWNER DECISION: core or parked |
+| 4 | imitation (behavior cloning, DAgger) | PARKED (owner decision 2026-10-12) |
+| 1 | MPC | PARKED (optional) |
+| report | COURSE: CSDS 440 report | |
+
+### Parked from the original plan (see `study/parking_lot.md`)
+
+- Section 8A (realistic rods and edge cases), including flag F11.
+- Section 9A (reading list) and the RankNet bridge paper in Section 9, plus flag F7.
+- Tier 1 MPC and tier 4 imitation.
+- Everything in the study plan's Phase 2 (extra concepts).
 
 ---
 
@@ -252,10 +311,10 @@ Philosophy (owner): learn to train this system by every reasonable method, inclu
 | Tier | Method | Real data needed |
 |---|---|---|
 | 0 | Hand LQR (from Chapter 1) | none |
-| 1 | MPC, hand-written, short horizon (optional) | none |
+| 1 | MPC, hand-written, short horizon (PARKED in v4.9, optional) | none |
 | 2 | Physics-only RL: PPO then SAC, package first then hand-coded | none |
 | 3 | Physics-only RL with domain randomization (random vs covariance-guided ranges) | none |
-| 4 | Imitation: behavior cloning and DAgger from the LQR or MPC teacher | none |
+| 4 | Imitation: behavior cloning and DAgger from the LQR or MPC teacher (PARKED in v5.0) | none |
 | 5 | System identification (Chapter 2), then RL | small N |
 | 6 | Learned dynamics (model-based RL): NN world model on scarce data, optionally physics plus a learned residual | small N |
 | 7 | Isaac Sim / Isaac Lab: massively parallel PPO, USD model, randomization | none or small N |
@@ -274,6 +333,8 @@ After tier 8, an optional future direction exists (Section 8A): the same pipelin
 ---
 
 ## 8A. Future direction (optional, not a chapter): realistic rods and edge cases
+
+**PARKED (v4.9).** Not on the code path (Section 2A). Logged in `study/parking_lot.md`. Do not work on it until the owner promotes it.
 
 **Status:** optional study direction, not a required part of the plan. Do it only after Chapters 1 to 3 are finished, including Isaac Sim (tier 7) and synthetic data (tier 8), and only if the owner wants it. Nothing in Chapters 1 to 3 may wait for it.
 
@@ -309,11 +370,13 @@ After tier 8, an optional future direction exists (Section 8A): the same pipelin
 | MATH440 inverse problems | Chapter 2 |
 | CSDS 440 machine learning | Chapter 3 and the research question |
 
-Bridge paper from the owner's professor: RankNet (Burges 2005, MEMORY). It only needs to be related, not used directly. A possible chain (all MEMORY, verify before citing): RankNet -> Bradley-Terry -> preference-based RL (Christiano 2017) -> DROPO or Fickinger -> GOODE (Attia 2018). Decide how to connect it when Chapter 3 is close.
+Bridge paper from the owner's professor: RankNet (Burges 2005, MEMORY). It only needs to be related, not used directly. A possible chain (all MEMORY, verify before citing): RankNet -> Bradley-Terry -> preference-based RL (Christiano 2017) -> DROPO or Fickinger -> GOODE (Attia 2018). Decide how to connect it when Chapter 3 is close. PARKED (v4.9): not on the code path.
 
 ---
 
 ## 9A. Reading list (papers)
+
+**PARKED (v4.9).** Reading is not code, so it is not on the code path (Section 2A). Logged in `study/parking_lot.md`. Read a paper only if the owner promotes it.
 
 Added in v4.4 at the owner's request: which papers to read for this project and for professional practice, and in what order. Reading is not code, so the "one code piece at a time" rule does not apply, but read **one paper at a time**. The number 9A keeps the references to Sections 10 to 13 valid.
 
@@ -374,6 +437,8 @@ Later, for Chapter 3 (all MEMORY): PPO (Schulman 2017), the Isaac Gym paper (Mak
 
 | Date and time | Change |
 |---|---|
+| 2026-10-12 09:46:25 EDT | v5.0: tier 4 (imitation) PARKED at the owner's decision, tier 6 (learned dynamics) still PENDING OWNER DECISION. Timestamps added to `study/study_plan.md` and `study/parking_lot.md`. Section 2A, Section 8 and the parking lot updated. |
+| 2026-10-12 EDT | v4.9: added rule 11 (strictly follow the code path) and Section 2A (core path for all three chapters: one code piece per stage, what it is compared against). Parked: Section 8A, Section 9A, the RankNet bridge paper, flag F7, tier 1 MPC. Tiers 4 and 6 are marked PENDING OWNER DECISION. Course reports are kept as COURSE write-ups. No stage was deleted; parked sections stay in this file with a PARKED banner. |
 | 2026-10-11 EDT | v4.8: added guardrails to `study/study_plan.md` (deliverables D1 to D3, ON-PATH/OFF-PATH labels, tripwire rules) and `study/parking_lot.md` for interesting but unneeded concepts. Execution order is now Phase 1 (notebook), Phase 3 (build by hand), then Phase 2 (extra concepts), because only Phase 3 ends with a result. Section 13 updated. No stage definitions changed. |
 | 2026-10-11 EDT | v4.7: the study plan was reordered at the owner's request. The notebook is now read line by line first with gaps taught live (Phase 1, no separate concepts phase, no skim). Extra concepts (T5, T6, cross product, right-hand rule, the full tensor) moved to Phase 2, after the notebook. The by-hand build is Phase 3. Section 6 pointer, Promised explanations, Section 2 and Section 13 updated. No stage definitions changed. |
 | 2026-10-11 EDT | v4.6: removed the long "Math relearning track" (M0 to M14) from Section 6 and replaced it with a pointer to `study/study_plan.md` (three phases: unknown concepts, read the notebook, build by hand), at the owner's request (plan felt too long). Updated "Promised explanations", Section 2 and Section 13 to point to the study plan. No stage definitions changed. |
@@ -389,7 +454,7 @@ Later, for Chapter 3 (all MEMORY): PPO (Schulman 2017), the Isaac Gym paper (Mak
 
 ## 13. Immediate next step
 
-**First: study plan Phase 1** (`study/study_plan.md`): read the notebook from Part 0, line by line, with gaps taught live (I_zz and its naming, parallel axis, OMEGA_UNSTABLE, inertia tensor, diaginertia, damping and friction, rotation matrices and the tip formula, gimbal lock). One short lesson per message. In parallel, no code: read paper 1 of Section 9A.
+**First: study plan Phase 1** (`study/study_plan.md`): read the notebook from Part 0, line by line, with gaps taught live (I_zz and its naming, parallel axis, OMEGA_UNSTABLE, inertia tensor, diaginertia, damping and friction, rotation matrices and the tip formula, gimbal lock). One short lesson per message.
 
 **Then: Phase 3** (build the same system by hand, Stages 1.2 to 1.8; the deliverable is a hand simulator matching MuJoCo). **Last: Phase 2**, extra concepts (T5, cross product and right-hand rule with proofs, T6, the full tensor), pulled in earlier only if a step needs one. Apply pending notebook change F10 at the end of Phase 1. Guardrails and the parking lot are in `study/`.
 

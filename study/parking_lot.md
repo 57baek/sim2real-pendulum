@@ -1,6 +1,6 @@
 # sim2real: Parking Lot (interesting, not on the critical path)
 
-Started 2026-10-11. Things that came up while studying that are interesting but not needed for D1 to D3 (notebook understood, hand tip function, hand 3D simulator). Nothing here blocks the project. Review after the hand simulator works, or earlier if one becomes needed.
+Started 2026-10-11. Last updated: 2026-10-12 09:46:25 EDT. Things that came up while studying that are interesting but not needed for D1 to D3 (notebook understood, hand tip function, hand 3D simulator). Nothing here blocks the project. Review after the hand simulator works, or earlier if one becomes needed.
 
 ## How it works
 
@@ -24,3 +24,17 @@ Started 2026-10-11. Things that came up while studying that are interesting but 
 | 10 | Symplectic integrators and why RK4 slowly loses energy | energy check (Part 5) | Why some integrators keep energy for very long runs | No | PARKED |
 | 11 | Transforming the tensor to a tilted frame, I' = R I R^T | tensor again (E8) | Needed for non-symmetric bodies | No for this rod | PARKED |
 | 12 | Realistic rods and edge cases (non-uniform, off-center mass) | plan.md Section 8A | Real objects are rarely uniform thin rods | No (optional, after Chapter 3) | PARKED |
+| 13 | plan.md Section 9A reading list (7 papers: Muratore review, Tobin, Peng, Chebotar, BayesSim, DROPO, Gautier and Khalil) and later Chapter 3 papers | project plan v4.9 | Maps the field and the closest cousins of the covariance-guided randomization idea | No (reading is not code) | PARKED |
+| 14 | RankNet bridge paper and its possible chain (Bradley-Terry, preference-based RL, DROPO, GOODE) | plan.md Section 9 | Link to the professor's paper for the class report | No | PARKED |
+| 15 | Verifying the literature citations (flag F7) | plan.md Section 10 | Several descriptions and venues are from memory | No | PARKED |
+| 16 | Tier 1 MPC (hand-written, short horizon) | plan.md Section 8 | Another way to control the rod without learning | No (optional) | PARKED |
+| 17 | Phase 2 extras of the study plan as a group (E1 to E8) | study_plan.md | Rigorous proofs behind torque, cross product, tensor | No | PARKED |
+| 18 | Tier 4 imitation learning: behavior cloning and DAgger from the LQR or MPC teacher | plan.md Section 8 | Learn a controller from demonstrations instead of rewards | No (owner decision 2026-10-12) | PARKED |
+
+## Change log
+
+| Date and time | Change |
+|---|---|
+| 2026-10-11 | File created with rows 1 to 12 |
+| 2026-10-12 | Rows 13 to 17 added (reading list, RankNet bridge, citation check, MPC, study plan Phase 2 extras) |
+| 2026-10-12 09:46:25 EDT | Row 18 added (tier 4 imitation, parked by the owner). Timestamp and change log added. |
