@@ -1,6 +1,6 @@
 # sim2real: Project Plan (for Claude Code)
 
-Status: v4.4, written 2026-10-10 22:06:58 EDT. Replaces plan v4.3 (kept in `archive/plan/PLAN_v4.3.MD`; v4.2 is in `archive/plan/PLAN_v4.2.MD`; v4.1 is in `archive/plan/PLAN_v4.1.MD`; v4 is in `archive/plan/PLAN_v4.MD`). Timestamps in this file use the real local date and time (`date "+%Y-%m-%d %H:%M:%S %Z"`). Older plans and logs are in `archive/plan/` and `sim2real_reference_archive.md` (read them only when a past decision must be revisited).
+Status: v4.8, written 2026-10-11 EDT. Replaces v4.7 (same day). Replaces plan v4.5 (not archived separately; v4.5 only added the long Math relearning track that v4.6 removes) and v4.4 (kept in `archive/plan/PLAN_v4.4.MD`; v4.3 is in `archive/plan/PLAN_v4.3.MD`; v4.2 is in `archive/plan/PLAN_v4.2.MD`; v4.1 is in `archive/plan/PLAN_v4.1.MD`; v4 is in `archive/plan/PLAN_v4.MD`). Timestamps in this file use the real local date and time (`date "+%Y-%m-%d %H:%M:%S %Z"`). Older plans and logs are in `archive/plan/` and `sim2real_reference_archive.md` (read them only when a past decision must be revisited).
 
 Labels used in this file:
 - FOUNDATIONAL = a number or choice we make or measure. Not derivable.
@@ -68,9 +68,9 @@ Read this section first. These are the owner's standing rules.
 | Chapters 2 and 3 | NOT STARTED |
 | Future direction: realistic rods and edge cases (optional, not a chapter) | NOT STARTED, only after Chapter 3. See Section 8A. |
 | Reading list (Section 9A) | NOT STARTED. Paper 1 is the Muratore et al. review. Reading needs no code. |
-| Prerequisites for 3D rotation (torque, cross product, right-hand rule, inertia tensor) | IN PROGRESS, see "Promised explanations" in Section 6. The owner is relearning torque first. |
+| Prerequisites for 3D rotation (torque, cross product, right-hand rule, inertia tensor) | IN PROGRESS, follows `study/study_plan.md` (Phase 1: read the notebook line by line and fill gaps live, Phase 2: extra concepts such as cross product, right-hand rule, T5, T6, Phase 3: build the system by hand). Torque lessons T1 to T5 are taught in chat; the owner's notes cover through the 3D torque formula. |
 
-**Next action:** relearn torque in 3D (step 3 of the order in Section 6: 3D torque as three flat torques), then the parallel-axis theorem and `OMEGA_UNSTABLE`, then the notebook walkthrough from Part 1B. After that Stage 1.2 (hand-derived kinematics). See Section 6. In parallel, no code: read paper 1 of the reading list (Section 9A).
+**Next action:** follow `study/study_plan.md`. Phase 1: read the notebook from Part 0, line by line, with gaps taught live (Part 1A first: I_zz and its naming, parallel axis, OMEGA_UNSTABLE; Part 1B: inertia tensor, diaginertia). Then Phase 2 (cross product, right-hand rule, T5, T6, the full tensor), then Phase 3 (build the system by hand, Stages 1.2 to 1.8). See Sections 6 and 13. In parallel, no code: read paper 1 of the reading list (Section 9A).
 
 ---
 
@@ -194,22 +194,32 @@ Each stage runs A (implement with MuJoCo), B (derive), C (hand code), D (compare
 
 Unused MATH441 chapters (2, 3, 7, 9) have no natural fit yet. Do not force them.
 
+### Study order (v4.7)
+
+The ordered learning path for Chapter 1 lives in `study/study_plan.md`, not here. It has three phases:
+
+1. **Phase 1:** read the whole Stage 1.1 notebook line by line, Parts 0 to 7, filling gaps live (lessons L1 to L11: I_zz and naming, parallel axis, OMEGA_UNSTABLE, inertia tensor, diaginertia, damping and friction, rotation matrices and the tip formula, lean conversion, noise, gimbal lock). Expensive gaps go in a ledger.
+2. **Phase 2:** extra concepts after the notebook (E1 to E8: T5, cross product with proofs, right-hand rule with proofs, T6, the full tensor with BAC-CAB).
+3. **Phase 3:** build the same system by hand (H1 to H10: one hinge, kinematics, angular velocity, hinge inertias, energy, Euler-Lagrange, friction, hand simulator, linearization).
+
+Phase 3 corresponds to Stages 1.2 to 1.8 below (and 1.7 numerics for the hand simulator). Stages 1.9 to 1.12 (LQR, nondimensionalization, noise, report) stay here and are not in the study plan yet.
+
 ### Promised explanations (owner asked to cover all of these; tick them off here)
 
 | Topic | Where it is taught | State |
 |---|---|---|
 | Moment of inertia from first principles (integral of r^2 dm), about the center of mass across the rod (m L^2/12) | notebook walkthrough, Part 1A | DONE (2026-10-10) |
 | Moment of inertia about the long axis (m r^2 / 2) via thin rings, and its naming (I_zz = row z, column z of the 3 x 3 table; MuJoCo diaginertia = "Ixx Iyy Izz") | notebook walkthrough, Part 1A | DONE (2026-10-10) |
-| Parallel-axis theorem, turning the center-of-mass value into the pivot value (0.0833 + 1.0 x 0.5^2 = 0.3333) | next teaching step, then Stage 1.3 by hand | TO DO |
-| OMEGA_UNSTABLE = sqrt(1.5 g / L) and its general form sqrt(m g d / I_pivot) | next after the parallel-axis theorem (walkthrough), derived by hand in Stage 1.8 | TO DO |
-| Products of inertia (off-diagonal entries), why they are 0 for our rod | concept taught in the inertia tensor lesson (2026-10-10); by hand in Stage 1.3 | CONCEPT DONE, BY HAND TO DO |
-| Inertia each hinge feels as the rod leans (jx: I_pivot cos^2 q2 + I_zz sin^2 q2, jy: I_pivot); why this explains flag F1 | Stages 1.3 to 1.5 | TO DO |
-| Kinetic energy including the translational mass part | Stage 1.4 | TO DO |
-| Inertia tensor (the 3 x 3 table): definition from L = I omega, link to the covariance matrix (I = trace(S) 1 - S with S the mass-weighted second-moment table), principal axes, diaginertia | lesson 2026-10-10 | CONCEPT DONE, BY HAND TO DO in Stage 1.3 |
-| Cross product: perpendicular, length |a||b| sin(theta) (area), component formula forced by the rules, anticommutative, not associative, triple products | lessons 2026-10-10 | TAUGHT (owner is relearning torque first, then returns to it) |
-| Right-hand rule: handedness, determinant, why it is a convention, physics does not depend on the hand | lesson 2026-10-10 | TAUGHT (learning order puts it last) |
-| Torque and the 3D torque arrow. Learning order: (1) 2D torque, (2) a spin as an arrow (axis, right hand picks the end), (3) 3D torque as three 2D torques (the cross product formula appears), (4) the cross product as a general tool, (5) v = omega x r, (6) right-hand rule in depth, (7) back to the inertia tensor | relearning, started 2026-10-10 | IN PROGRESS: what torque is (tau = F d = I alpha derived for a lever) and step 2 done, step 3 next |
-| Remaining notebook walkthrough, Parts 1B to 7 | before Stage 1.2 | TO DO |
+| Parallel-axis theorem, turning the center-of-mass value into the pivot value (0.0833 + 1.0 x 0.5^2 = 0.3333) | study plan Phase 1 lesson L2 (at Part 1A), then Stage 1.3 by hand | TO DO |
+| OMEGA_UNSTABLE = sqrt(1.5 g / L) and its general form sqrt(m g d / I_pivot) | study plan Phase 1 lesson L3 (at Part 1A), derived by hand in Stage 1.8 (study plan H10) | TO DO |
+| Products of inertia (off-diagonal entries), why they are 0 for our rod | concept taught 2026-10-10; to be redone at study plan Phase 1 lessons L4 and L5 (at Part 1B), with the BAC-CAB proof in Phase 2 E8; by hand in Stage 1.3 | REDO IN PHASE 1 |
+| Inertia each hinge feels as the rod leans (jx: I_pivot cos^2 q2 + I_zz sin^2 q2, jy: I_pivot); why this explains flag F1 | study plan Phase 3 H4 and H5, then Stages 1.3 to 1.5 | TO DO |
+| Kinetic energy including the translational mass part | study plan Phase 3 H6, then Stage 1.4 | TO DO |
+| Inertia tensor (the 3 x 3 table): definition from L = I omega, link to the covariance matrix (I = trace(S) 1 - S with S the mass-weighted second-moment table), principal axes, diaginertia | lesson 2026-10-10; to be redone from scratch at study plan Phase 1 lessons L4 and L5 (owner's request 2026-10-11), full proof in Phase 2 E8 | REDO IN PHASE 1, BY HAND TO DO in Stage 1.3 |
+| Cross product: perpendicular, length |a||b| sin(theta) (area), component formula forced by the rules, anticommutative, not associative, triple products | study plan Phase 2 E2, E4, E6 (full proofs, after the notebook) | TO DO |
+| Right-hand rule: handedness, determinant, why it is a convention, physics does not depend on the hand | study plan Phase 2 E3, E5 (full proofs, after the notebook) | TO DO |
+| Torque and the 3D torque arrow: T1 to T5 taught in chat (what torque is, 2D torque, omega arrow, alpha arrow, torque arrow, 3D torque as three flat torques, rigid-body torque). T5 goes into the owner's notes (study plan Phase 2 E1) and T6 (torque about a new point) is taught in study plan Phase 2 E7 | chat 2026-10-10 and 2026-10-11 | T1 to T5 DONE in chat, T6 TO DO at E7 |
+| Remaining notebook walkthrough, Parts 1B to 7 | study plan Phase 1 (read the whole notebook line by line, now first) | TO DO |
 | Edge cases: a rod that is not conventional (future direction, optional) | Section 8A, after Chapter 3 | OPTIONAL, FUTURE |
 
 **Exit criterion for Chapter 1:** a hand-coded 3D simulator matches MuJoCo within a stated tolerance on several trajectories, and hand-built LQR balances the rod in both.
@@ -364,6 +374,10 @@ Later, for Chapter 3 (all MEMORY): PPO (Schulman 2017), the Isaac Gym paper (Mak
 
 | Date and time | Change |
 |---|---|
+| 2026-10-11 EDT | v4.8: added guardrails to `study/study_plan.md` (deliverables D1 to D3, ON-PATH/OFF-PATH labels, tripwire rules) and `study/parking_lot.md` for interesting but unneeded concepts. Execution order is now Phase 1 (notebook), Phase 3 (build by hand), then Phase 2 (extra concepts), because only Phase 3 ends with a result. Section 13 updated. No stage definitions changed. |
+| 2026-10-11 EDT | v4.7: the study plan was reordered at the owner's request. The notebook is now read line by line first with gaps taught live (Phase 1, no separate concepts phase, no skim). Extra concepts (T5, T6, cross product, right-hand rule, the full tensor) moved to Phase 2, after the notebook. The by-hand build is Phase 3. Section 6 pointer, Promised explanations, Section 2 and Section 13 updated. No stage definitions changed. |
+| 2026-10-11 EDT | v4.6: removed the long "Math relearning track" (M0 to M14) from Section 6 and replaced it with a pointer to `study/study_plan.md` (three phases: unknown concepts, read the notebook, build by hand), at the owner's request (plan felt too long). Updated "Promised explanations", Section 2 and Section 13 to point to the study plan. No stage definitions changed. |
+| 2026-10-11 19:20 EDT | v4.5: added the "Math relearning track" (lessons M0 to M14) to Section 6 at the owner's request: T5, cross product (C1 to C6), right-hand rule (R1 to R5) and T6 at full length with proofs, I_zz redo, parallel axis, OMEGA_UNSTABLE, inertia tensor redo from scratch, principal axes, hinge inertias, kinetic energy, then the real notebook walkthrough. The owner skims the notebook once first with no stopping. Updated "Promised explanations", Section 2 status and Section 13. Previous plan: `archive/plan/PLAN_v4.4.MD`. |
 | 2026-10-10 22:06:58 EDT | v4.4: added Section 9A (reading list: the Muratore review first, then Tobin, Peng, Chebotar, BayesSim, DROPO, Gautier and Khalil), flag F7 reworded, "Promised explanations" updated (inertia tensor, cross product, right-hand rule, torque in 3D with the learning order), next action and Section 13 updated. Also fixes a mismatch: the repo copy of v4.3 still said "Four chapters" with Section 8A as Chapter 4, although the owner decided it is an optional future direction, not a chapter. v4.4 has the three-chapter wording. Previous plan: `archive/plan/PLAN_v4.3.MD`. |
 | 2026-10-10 16:08:27 EDT | v4.3: added Section 8A, an OPTIONAL future direction (realistic rods and edge cases) after Chapter 3 including Isaac Sim; the project stays a three-chapter plan. Added the "Promised explanations" list (Section 6), the notebook walkthrough status (Section 2), parameter r and I_zz formula (4.2), new verified facts with honest labels (Section 5), stage 1.3, 1.4, 1.8 content, flags F10 and F11, flag F1 note. Flat-bar check stated as "within 0.05%" (an earlier message said 0.03%, which was slightly too tight for I_zz). Previous plan: `archive/plan/PLAN_v4.2.MD`. |
 | 2026-10 (earlier, time not recorded) | Fresh plan v3 from the owner's answers. Chapter 0 added. 3D confirmed as a 2-axis gimbal with 2 motors. Chapter 3 rewritten as a method ladder with scarce real data. |
@@ -375,9 +389,9 @@ Later, for Chapter 3 (all MEMORY): PPO (Schulman 2017), the Isaac Gym paper (Mak
 
 ## 13. Immediate next step
 
-**First: finish relearning torque in 3D** (step 3 of the order in Section 6, then the parallel-axis theorem and `OMEGA_UNSTABLE`). In parallel, no code: read paper 1 of Section 9A.
+**First: study plan Phase 1** (`study/study_plan.md`): read the notebook from Part 0, line by line, with gaps taught live (I_zz and its naming, parallel axis, OMEGA_UNSTABLE, inertia tensor, diaginertia, damping and friction, rotation matrices and the tip formula, gimbal lock). One short lesson per message. In parallel, no code: read paper 1 of Section 9A.
 
-**Then: finish the notebook walkthrough** (owner's request). Teach the parallel-axis theorem and then `OMEGA_UNSTABLE`, then Part 1B (XML model) onward, one part at a time, no hand math or hand code before the owner understands the notebook. Apply the pending notebook change F10 when appropriate. Cover the other items in "Promised explanations" (Section 6) when their stages arrive.
+**Then: Phase 3** (build the same system by hand, Stages 1.2 to 1.8; the deliverable is a hand simulator matching MuJoCo). **Last: Phase 2**, extra concepts (T5, cross product and right-hand rule with proofs, T6, the full tensor), pulled in earlier only if a step needs one. Apply pending notebook change F10 at the end of Phase 1. Guardrails and the parking lot are in `study/`.
 
 **Then Stage 1.2: kinematics by hand.**
 - A (already done): MuJoCo geometry check at 4e-16 m.
