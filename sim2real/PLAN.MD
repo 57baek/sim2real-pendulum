@@ -1,6 +1,6 @@
 # sim2real: Project Plan (for Claude Code)
 
-Status: v5.0, written 2026-10-12 09:46:25 EDT. Replaces v4.9 (v4.9 and v4.8 only added the code-path rule, guardrails and the parking lot; backups are not in `archive/plan/`). Replaces plan v4.5 (not archived separately; v4.5 only added the long Math relearning track that v4.6 removes) and v4.4 (kept in `archive/plan/PLAN_v4.4.MD`; v4.3 is in `archive/plan/PLAN_v4.3.MD`; v4.2 is in `archive/plan/PLAN_v4.2.MD`; v4.1 is in `archive/plan/PLAN_v4.1.MD`; v4 is in `archive/plan/PLAN_v4.MD`). Timestamps in this file use the real local date and time (`date "+%Y-%m-%d %H:%M:%S %Z"`). Older plans and logs are in `archive/plan/` and `sim2real_reference_archive.md` (read them only when a past decision must be revisited).
+Status: v5.3, written 2026-10-14 09:24:12 EDT. Replaces v5.2, v5.1, v5.0, v4.9 (v4.9 and v4.8 only added the code-path rule, guardrails and the parking lot; backups are not in `archive/plan/`). Replaces plan v4.5 (not archived separately; v4.5 only added the long Math relearning track that v4.6 removes) and v4.4 (kept in `archive/plan/PLAN_v4.4.MD`; v4.3 is in `archive/plan/PLAN_v4.3.MD`; v4.2 is in `archive/plan/PLAN_v4.2.MD`; v4.1 is in `archive/plan/PLAN_v4.1.MD`; v4 is in `archive/plan/PLAN_v4.MD`). Timestamps in this file use the real local date and time (`date "+%Y-%m-%d %H:%M:%S %Z"`). Older plans and logs are in `archive/plan/` and `sim2real_reference_archive.md` (read them only when a past decision must be revisited).
 
 Labels used in this file:
 - FOUNDATIONAL = a number or choice we make or measure. Not derivable.
@@ -91,9 +91,9 @@ A stage is CORE only if it ends in a code piece that runs and prints a number or
 | 1.6 | damping, Coulomb friction (tanh), motor torque and saturation in the hand simulator | MuJoCo trajectories with them on | |
 | 1.7 | explicit Euler vs RK4 vs semi-implicit, step size, energy drift script | theory (Euler energy factor 1 + omega^2 dt^2) | |
 | 1.8 | hand linearization: Jacobian, eigenvalues, controllability | +-3.836 1/s, MuJoCo growth check | |
-| 1.9 | hand LQR (Riccati) balancing the rod | hand simulator and MuJoCo | |
+| 1.9 | hand LQR (Riccati) balancing the rod, then tested on the disturbance suite (impulse pushes in several directions, one constant wind) | hand simulator and MuJoCo | |
 | 1.10 | nondimensionalization script (dimensionless curves collapse) | the dimensional simulation | |
-| 1.11 | noise and sensors in the hand simulator (encoder noise, quantization, delay) | noise-free run | |
+| 1.11 | noise and sensors in the hand simulator (encoder noise, quantization, delay) plus the disturbance functions (random impulse push, constant wind, later gusts) | noise-free, undisturbed run | |
 | 1.12 | COURSE: MATH441 report | | after 1.1 to 1.11 work |
 
 ### Chapter 2: Inverse problem (MATH440)
@@ -102,10 +102,10 @@ A stage is CORE only if it ends in a code piece that runs and prints a number or
 |---|---|---|---|
 | 2.1 | data generation script from MuJoCo (forward map, excitation) | the hand forward model | |
 | 2.2 | noise model functions (Gaussian, colored, bias, quantization, delay, dropouts) | clean data | |
-| 2.3 | hand Gauss-Newton and Levenberg-Marquardt | scipy `least_squares` | |
-| 2.4 | SVD and condition number of the Jacobian | theory (unidentifiable directions) | |
-| 2.5 | Tikhonov regularization, choice of lambda | unregularized fit | |
-| 2.6 | covariance and Fisher information, parameter ranking | repeated-fit scatter | |
+| 2.3 | hand Jacobian J, least-squares and minimum-norm Gauss-Newton step (pseudoinverse through the SVD), then Levenberg-Marquardt | scipy `least_squares` | |
+| 2.4 | SVD and condition number of J, truncated SVD (keep only the identifiable directions) | theory (unidentifiable directions), the full-rank fit | |
+| 2.5 | Tikhonov regularization (filter factors, the same as the Levenberg-Marquardt damped step), L-curve choice of lambda | unregularized fit, truncated SVD | |
+| 2.6 | covariance Cov = s^2 sum_i v_i v_i^T / sigma_i^2 and Fisher information, parameter ranking (links to truncated SVD) | repeated-fit scatter | |
 | 2.7 | covariance-guided randomization ranges (input to the research question) | random or uniform ranges | |
 | 2.8 | COURSE: MATH440 report | | |
 
@@ -114,8 +114,8 @@ A stage is CORE only if it ends in a code piece that runs and prints a number or
 | Tier | Code piece | State |
 |---|---|---|
 | 0 | hand LQR (done in Stage 1.9) | via 1.9 |
-| 2 | physics-only RL: PPO then SAC, package first then hand-coded | |
-| 3 | physics-only RL with domain randomization: random vs covariance-guided ranges | |
+| 2 | physics-only RL: PPO then SAC, package first then hand-coded; trained on long episodes with random initial states and random impulse pushes (see the disturbance rule) | |
+| 3 | physics-only RL with domain randomization: random vs covariance-guided ranges, same disturbance training and the same disturbance suite for evaluation | |
 | 5 | system identification (Chapter 2), then RL | |
 | 7 | Isaac Sim / Isaac Lab: parallel PPO, USD model, randomization (owner's GPU PC) | |
 | 8 | synthetic-data training from Isaac, fine-tune on scarce real data | |
@@ -124,11 +124,22 @@ A stage is CORE only if it ends in a code piece that runs and prints a number or
 | 1 | MPC | PARKED (optional) |
 | report | COURSE: CSDS 440 report | |
 
+### Disturbance rule (v5.2)
+
+Why: in an ideal, undisturbed simulation the state goes to 0 and stays there, so the controller is never tested after it settles. The upright pose is unstable (a small tilt grows like alpha0 cosh(omega_u t), omega_u = 3.836 1/s, DERIVED), so a real balancer keeps correcting at every step. An undisturbed run alone proves nothing about balancing.
+
+1. **No result counts as "balanced" from an undisturbed run alone.** Every controller (LQR, PPO, SAC, any tier) is reported on the fixed disturbance suite below.
+2. **Fixed disturbance suite (evaluation):** impulse pushes of small, medium and large size in at least four directions; one constant-wind case (steady torque); sensor noise on (sigma_angle = 0.01 rad, Section 4.2); one delay case. Metrics: time upright, largest push recovered, settling time, torque effort. The push sizes and durations are FOUNDATIONAL choices, fixed and stated up front when Stage 1.9 starts, and never changed after seeing results.
+3. **Training (Chapter 3):** long episodes (length stated up front) that end early when the rod falls, random initial states (tilt, direction, velocity), random impulse pushes at random times, observation noise and delay, and a small penalty on torque and torque change so the policy does not chatter. Add one disturbance type at a time.
+4. **Later, as separate tests:** constant wind and smooth gusts (for example Ornstein-Uhlenbeck torque noise).
+5. **Implementation note (MEMORY, verify in the MuJoCo docs first):** external forces can be applied through `xfrc_applied` (on a body) or `qfrc_applied` (on joints).
+
 ### Parked from the original plan (see `study/parking_lot.md`)
 
 - Section 8A (realistic rods and edge cases), including flag F11.
 - Section 9A (reading list) and the RankNet bridge paper in Section 9, plus flag F7.
 - Tier 1 MPC and tier 4 imitation.
+- MATH440 topics Landweber iteration, Kaczmarz iteration and Lanczos inversion (3 parameters: a direct SVD is enough).
 - Everything in the study plan's Phase 2 (extra concepts).
 
 ---
@@ -191,7 +202,7 @@ Conventions:
 | omega_u | tilt growth rate at upright, sqrt(1.5 g / L) | 3.836 | 1/s | derived |
 | alpha_hold | steepest tilt the motor can resist, arcsin(T_max / (m g L / 2)) | 37.7 | deg | derived (necessary, not sufficient) |
 | r | rod radius (capsule size in the XML) | 0.02 | m | foundational |
-| I_zz | rod inertia about its own long axis, m r^2 / 2 | 2e-4 | kg*m^2 | derived from m and r (the notebook still hard-codes 2e-4, see flag F10). Was 1e-6, see flag F1 |
+| I_zz | rod inertia about its own long axis, m r^2 / 2 | 2e-4 | kg*m^2 | derived from m and r (computed in the notebook as ROD_MASS * ROD_RADIUS**2 / 2, and the capsule size uses ROD_RADIUS, see flag F10). Was 1e-6, see flag F1 |
 
 The two physics checks (growth, energy) run with c = 0 and f = 0 because the theory has neither.
 
@@ -291,12 +302,14 @@ Phase 3 corresponds to Stages 1.2 to 1.8 below (and 1.7 numerics for the hand si
 |---|---|
 | 2.1 | Forward map and data design: what is measured (angles, maybe torque), excitation (weak vs rich) |
 | 2.2 | Heavy realistic noise models: Gaussian, colored, bias or drift, quantization, delay, dropouts (details to be discussed with the owner) |
-| 2.3 | Least squares by hand: MLE view, Jacobian, Gauss-Newton and Levenberg-Marquardt, compare with scipy `least_squares` |
-| 2.4 | Ill-posedness: SVD of the Jacobian, condition number, what "unidentifiable" means |
-| 2.5 | Tikhonov regularization: MAP view, choosing lambda (L-curve, discrepancy principle, cross-validation) |
+| 2.3 | Least squares by hand: MLE view, Jacobian, least-squares and minimum-norm (LS and MN) Gauss-Newton step, Levenberg-Marquardt, compare with scipy `least_squares` |
+| 2.4 | Ill-posedness: SVD of the Jacobian, condition number, truncated SVD, what "unidentifiable" means |
+| 2.5 | Tikhonov regularization: MAP view, filter factors, link to the Levenberg-Marquardt damping, choosing lambda (L-curve first; discrepancy principle, cross-validation if time) |
 | 2.6 | Identifiability and covariance: Cov ~ sigma^2 (J^T J)^-1, Fisher information, parameter ranking |
 | 2.7 | Research question: covariance-guided domain randomization vs random or heuristic randomization (the RL test itself runs in Chapter 3) |
 | 2.8 | Chapter report |
+
+MATH440 link (added v5.1): the class covers linear ill-posed problems (LS and MN, SVD, truncated SVD, Tikhonov, L-curve). In this project they are applied to the Jacobian J of the nonlinear fit at each Gauss-Newton step. Landweber, Kaczmarz and Lanczos are parked (`study/parking_lot.md`).
 
 Notes:
 - **Mass is not identifiable from angle-only data** (DERIVED in the 2D case): scaling (m, c, f, T) by the same factor gives the same trajectory. Only ratios such as c/m, f/m, T/m are identifiable. Redo this analysis for the gimbal before fixing the parameter vector in Stage 2.1.
@@ -322,7 +335,7 @@ Philosophy (owner): learn to train this system by every reasonable method, inclu
 
 Suggested order: 0, 2, 3, 4, 5, 6 first (no GPU), then 7 and 8. Tier 1 can be inserted anywhere.
 
-**Comparison metrics (same for all tiers):** sample efficiency (simulation steps and real-data trajectories), success rate and settling time on the "true" system, robustness to parameter shift, noise, delay and pushes, failure modes, compute cost.
+**Comparison metrics (same for all tiers):** sample efficiency (simulation steps and real-data trajectories), success rate and settling time on the "true" system, robustness to parameter shift, noise, delay and pushes (measured on the fixed disturbance suite of Section 2A), failure modes, compute cost.
 
 **CSDS 440 focus:** physics-based (tiers 2 to 5) vs data-based (tiers 6 and 8) vs hybrid (residual, fine-tuning). Caveat: Isaac Sim runs a physics engine (PhysX), so "synthetic data" means simulator-generated data that a model learns from, not physics-free data. Confirm this definition at Stage 3.6.
 
@@ -417,7 +430,7 @@ Later, for Chapter 3 (all MEMORY): PPO (Schulman 2017), the Isaac Gym paper (Mak
 | F7 | **Literature citations.** Papers 1, 3, 4, 5 and 6 of Section 9A were confirmed to exist by web search on 2026-10-10 (title, link and, for papers 1 and 5, venue). The descriptions of what they contain, the venues the search did not show, paper 2, paper 7 (Gautier and Khalil) and the RankNet chain are MEMORY. Verify before citing. |
 | F8 | Class name for inverse problems is written MATH440 by the owner. Confirm if a formal name is needed for a report. |
 | F9 | The PD controller from the earlier notebook is hand-tuned and is only a placeholder for LQR. |
-| F10 | **Pending notebook change (agreed with the owner, not yet applied).** Replace the hard-coded `I_ZZ = 2e-4` by `ROD_RADIUS = 0.02` and `I_ZZ = ROD_MASS * ROD_RADIUS**2 / 2`, use `{ROD_RADIUS}` for the capsule `size` in the XML, then re-run the gimbal lock check (F1) and the other checks. The value stays 2e-4 kg*m^2, so results should not change. Apply it when the owner's walkthrough reaches Part 1A again, or earlier if asked. |
+| F10 | **Notebook change APPLIED, NOT YET RE-RUN (2026-10-14 09:24:12 EDT).** `I_ZZ = ROD_MASS * ROD_RADIUS**2 / 2` was already in the notebook; the last hard-coded value, the capsule `size="0.02"` in the XML, is now `size="{ROD_RADIUS}"` (one line, `ch1_modeling.ipynb`, backup of the previous file not kept in the repo). The values stay 0.02 m and 2e-4 kg*m^2, so results should not change. The edit was made outside Jupyter and MuJoCo could not be run in that environment, so the notebook has NOT been re-run since the edit. To close this flag: re-run the notebook once from a restarted kernel and confirm the checks (geometry 4e-16 m, mass matrix, straightness, growth, energy) print as in Section 5. |
 | F11 | **Edge cases are not covered yet.** Until the future direction in Section 8A is studied, every result in this repo holds only for a uniform, thin, round rod pivoting at its end. Do not generalise claims (growth rate, identifiability, controller limits) to other objects. |
 
 ---
@@ -430,6 +443,7 @@ Later, for Chapter 3 (all MEMORY): PPO (Schulman 2017), the Isaac Gym paper (Mak
 - Derivation (stage B) written in a notes file the owner can read.
 - Hand implementation (stage C) compared against MuJoCo (stage D) with a tolerance stated up front.
 - Open flags updated.
+- Controllers are reported on the disturbance suite (Section 2A), not only on undisturbed runs.
 
 ---
 
@@ -437,6 +451,9 @@ Later, for Chapter 3 (all MEMORY): PPO (Schulman 2017), the Isaac Gym paper (Mak
 
 | Date and time | Change |
 |---|---|
+| 2026-10-14 09:24:12 EDT | v5.3: flag F10 applied in `ch1_modeling.ipynb` (capsule size now uses ROD_RADIUS; I_ZZ was already computed). Not re-run yet (MuJoCo not available where the edit was made). Parameter table row for I_zz updated. |
+| 2026-10-14 09:21:13 EDT | v5.2: added the disturbance rule (Section 2A): no result counts as balanced from an undisturbed run alone; fixed disturbance suite for evaluation; disturbance training for Chapter 3 (long episodes, random initial states, random impulse pushes, noise and delay, torque penalty). Stages 1.9, 1.11, tiers 2 and 3, Section 8 metrics and Section 11 updated. No stage added or removed. |
+| 2026-10-14 09:17:54 EDT | v5.1: MATH440 core topics added to Chapter 2: LS and MN (2.3), SVD and truncated SVD (2.4), Tikhonov with its Levenberg-Marquardt link and the L-curve (2.5), covariance link to truncated SVD (2.6). Landweber, Kaczmarz, Lanczos stay parked. Section 2A and Section 7 updated; no stage added or removed. |
 | 2026-10-12 09:46:25 EDT | v5.0: tier 4 (imitation) PARKED at the owner's decision, tier 6 (learned dynamics) still PENDING OWNER DECISION. Timestamps added to `study/study_plan.md` and `study/parking_lot.md`. Section 2A, Section 8 and the parking lot updated. |
 | 2026-10-12 EDT | v4.9: added rule 11 (strictly follow the code path) and Section 2A (core path for all three chapters: one code piece per stage, what it is compared against). Parked: Section 8A, Section 9A, the RankNet bridge paper, flag F7, tier 1 MPC. Tiers 4 and 6 are marked PENDING OWNER DECISION. Course reports are kept as COURSE write-ups. No stage was deleted; parked sections stay in this file with a PARKED banner. |
 | 2026-10-11 EDT | v4.8: added guardrails to `study/study_plan.md` (deliverables D1 to D3, ON-PATH/OFF-PATH labels, tripwire rules) and `study/parking_lot.md` for interesting but unneeded concepts. Execution order is now Phase 1 (notebook), Phase 3 (build by hand), then Phase 2 (extra concepts), because only Phase 3 ends with a result. Section 13 updated. No stage definitions changed. |

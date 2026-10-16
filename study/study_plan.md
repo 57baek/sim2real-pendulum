@@ -1,6 +1,6 @@
 # sim2real: Study Plan (all chapters)
 
-Written 2026-10-11. Last updated: 2026-10-12 09:47:20 EDT. A separate, short plan for learning, covering all three chapters. It does not replace `plan.md` (the project plan); `plan.md` Section 6 points here. Chapter 1 is detailed below. Chapters 2 and 3 are filled in as we go, when each chapter starts, so nothing is planned in detail before it is needed.
+Written 2026-10-11. Last updated: 2026-10-14 09:24:12 EDT. A separate, short plan for learning, covering all three chapters. It does not replace `plan.md` (the project plan); `plan.md` Section 6 points here. Chapter 1 is detailed below. Chapters 2 and 3 are filled in as we go, when each chapter starts, so nothing is planned in detail before it is needed.
 
 Labels: FOUNDATIONAL = a given or chosen input (not derivable). DERIVED = follows from other equations.
 
@@ -101,7 +101,7 @@ Left in the ledger on purpose (each needs body angular velocity or the equations
 - mass matrix at a general pose, hinge inertias I_pivot cos^2 q2 + I_zz sin^2 q2: H4, H5
 - RK4 and numerical drift: H9
 
-Apply pending notebook change F10 (compute I_zz from m and r) at the end of this phase.
+Notebook change F10 is applied (capsule size uses ROD_RADIUS) but not yet re-run: re-run the notebook once from a restarted kernel at the start of this phase and confirm the checks match plan.md Section 5.
 
 Exit (close test): without looking at the notebook, the owner writes (1) the system diagram (ring, jx, rod, jy, motors), (2) the tip formula with its derivation, (3) the flow: build model, check, run, log, plot, and (4) the ledger has only Phase 3 items left.
 
@@ -153,7 +153,13 @@ Not detailed yet. Filled in when Chapter 1 reaches its exit. The code pieces are
 
 | Step | Code piece (from plan.md Section 2A) | Lessons needed | State |
 |---|---|---|---|
-| 2.1 to 2.7 | data generation, noise models, hand Gauss-Newton and LM vs scipy, SVD, Tikhonov, covariance, covariance-guided ranges | to be listed when the chapter starts | NOT STARTED |
+| 2.1, 2.2 | data generation, noise models | to be listed when the chapter starts | NOT STARTED |
+| 2.3 | Jacobian, LS and MN Gauss-Newton step, Levenberg-Marquardt vs scipy | MATH440 notes: least squares and minimum norm (LS and MN); new: Jacobian of an ODE fit | NOT STARTED |
+| 2.4 | SVD and condition number of J, truncated SVD | MATH440 notes: SVD, TSVD | NOT STARTED |
+| 2.5 | Tikhonov (filter factors = LM damping), L-curve | MATH440 notes: Tikhonov, L-curve | NOT STARTED |
+| 2.6, 2.7 | covariance, Fisher information, parameter ranking, covariance-guided ranges | new (not in the MATH440 topic list): covariance and Fisher information | NOT STARTED |
+
+Course topics used: LS and MN, SVD, TSVD, Tikhonov, L-curve (taught from the class notes, in the notes' notation, applied to the Jacobian of the nonlinear fit). Parked: Landweber, Kaczmarz, Lanczos (see `parking_lot.md`).
 
 ---
 
@@ -163,7 +169,7 @@ Not detailed yet. Filled in when Chapter 2 reaches its exit. The core tiers are 
 
 | Step | Code piece (from plan.md Section 2A) | Lessons needed | State |
 |---|---|---|---|
-| tiers 0, 2, 3, 5, 7, 8 | hand LQR (via 1.9), PPO then SAC, domain randomization, system identification then RL, Isaac Sim/Lab, synthetic data | to be listed when the chapter starts | NOT STARTED |
+| tiers 0, 2, 3, 5, 7, 8 (all trained and evaluated under the disturbance rule of plan.md Section 2A) | hand LQR (via 1.9), PPO then SAC, domain randomization, system identification then RL, Isaac Sim/Lab, synthetic data | to be listed when the chapter starts | NOT STARTED |
 
 ---
 
@@ -191,3 +197,6 @@ LQR, nondimensionalization, noise and sensors, the chapter report, and Chapters 
 | 2026-10-11 | Created: Phase 1 (notebook line by line), Phase 2 (extra concepts), Phase 3 (build by hand); guardrails D1 to D3; parking lot pointer; execution order Phase 1, Phase 3, Phase 2 |
 | 2026-10-12 09:46:25 EDT | Timestamp and change log added. Plan.md is now v5.0 with the code-path rule (Section 2A); tier 4 parked. No lesson changes. |
 | 2026-10-12 09:47:20 EDT | Study plan now covers all chapters: Chapter 1 detailed, Chapters 2 and 3 as placeholders to fill in as we go. Guardrails marked as applying to all chapters. |
+| 2026-10-14 09:17:54 EDT | Chapter 2 table now lists the MATH440 core topics per stage (2.3 to 2.6). Parked topics noted. |
+| 2026-10-14 09:21:13 EDT | Chapter 3 row now points to the disturbance rule (plan.md v5.2). No lesson changes. |
+| 2026-10-14 09:24:12 EDT | F10 applied in the notebook; Phase 1 now starts with one re-run of the notebook. |
