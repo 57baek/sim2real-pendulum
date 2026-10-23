@@ -1,6 +1,6 @@
 # sim2real: Study Plan (all chapters)
 
-Written 2026-10-11. Last updated: 2026-10-14 09:24:12 EDT. A separate, short plan for learning, covering all three chapters. It does not replace `plan.md` (the project plan); `plan.md` Section 6 points here. Chapter 1 is detailed below. Chapters 2 and 3 are filled in as we go, when each chapter starts, so nothing is planned in detail before it is needed.
+Written 2026-10-11. Last updated: 2026-10-16 17:41:24 EDT. A separate, short plan for learning, covering all three chapters. It does not replace `plan.md` (the project plan); `plan.md` Section 6 points here. Chapter 1 is detailed below. Chapters 2 and 3 are filled in as we go, when each chapter starts, so nothing is planned in detail before it is needed.
 
 Labels: FOUNDATIONAL = a given or chosen input (not derivable). DERIVED = follows from other equations.
 
@@ -34,7 +34,7 @@ Small extra win: the hand-coded growth curve alpha0 cosh(Omega t) compared with 
 
 ### Labels
 
-Every lesson is labeled **ON-PATH** (D1 to D3 cannot be done without it) or **OFF-PATH** (understanding only). ON-PATH: L1 to L11, H1 to H10. OFF-PATH: E1 to E8 (T5, cross product proofs, right-hand rule proofs, T6, the general tensor with BAC-CAB). Off-path does not mean worthless, it means the project does not stop without it.
+Every lesson is labeled **ON-PATH** (D1 to D3 cannot be done without it) or **OFF-PATH** (understanding only). ON-PATH: L1 to L11, H1 to H10. OFF-PATH: E1 to E9 (T5, cross product proofs, right-hand rule proofs, T6, the general tensor with BAC-CAB, dot vs cross product). Off-path does not mean worthless, it means the project does not stop without it.
 
 ### Rules
 
@@ -121,8 +121,31 @@ Goal: the full, rigorous version of the math the owner wants to cover, with all 
 | E6 | C6: triple products and BAC-CAB, a x (b x c) = b (a . c) - c (a . b), proved | E4 |
 | E7 | T6 (full length): torque about a new point P (tau_P = tau_O - r_P x F_total), couples, gravity torque r_cm x m g | E4 |
 | E8 | Inertia tensor again with the BAC-CAB proof, and I' = R I R^T | E6, L4, L7 |
+| E9 | Dot product vs cross product (special lesson): define both, what information each keeps (parallel vs perpendicular part), the 2D product as the special case of the 3D product, why v, L and tau only see the perpendicular part. Full outline below | E1 (run it right after E1; it frames E2 to E6) |
 
 Exit: the owner can prove each cross product property and the right-hand rule claims, and has T5 in the notes.
+
+### E9 lesson plan: dot product vs cross product (written 2026-10-16 17:41:24 EDT)
+
+Why it exists: while teaching L1 (inertia tensor) the owner asked why 2D uses plain multiplication where 3D uses the cross product, and why only the perpendicular part counts for v, L and tau. The short answers were given in chat; this lesson is the full, rigorous version. It is OFF-PATH: the code path only needs v = omega x r and L = r x p as tools, and both are already proved in chat.
+
+Aim: after E9 the owner can say what the dot and cross products keep and discard, why the 2D formulas are the cross product on the z axis, and why rotation quantities only see the perpendicular part.
+
+| Part | Content |
+|---|---|
+| 1. Definitions | Dot: a . b = ax bx + ay by + az bz = |a||b| cos(phi), a number. Cross: a x b = (ay bz - az by, az bx - ax bz, ax by - ay bx), size |a||b| sin(phi), direction perpendicular to both, sense by the right-hand rule, a vector. Units and what each is for. |
+| 2. What information is kept | Split b = b_par + b_perp relative to a, with b_par = (a . b / |a|^2) a. Then a . b = |a| x (signed length of b_par) and |a x b| = |a||b_perp|. The dot loses the perpendicular part, the cross loses the parallel part. Together they recover the angle: tan(phi) = |a x b| / (a . b). Worked example a = (1,0,0), b = (3,4,0). Reading of a_hat x b: keep b_perp and turn it 90 degrees about a_hat. |
+| 3. 2D as the special case | For vectors in the xy plane a x b = (0, 0, ax by - ay bx), so one signed number carries the whole result. The owner's 2D formulas are z components: v = r omega, L = I omega, tau = p Fq - q Fp. The direction was implicit because the axis can only be z, and sin(phi) = 1 hid inside the circle. Bonus: complex numbers, conj(a) b = (a . b) + i (a x b)_z, both products in one multiplication. |
+| 4. Why only the perpendicular part (math) | (a) A rotation about n_hat fixes the axis line: the parallel part of r never moves, the perpendicular part turns, so dr/dtheta = n_hat x r. (b) n_hat x acts as: project onto the plane perpendicular to n_hat, then turn by 90 degrees. This is the term n_hat x r_par = 0 in the proof of v = omega x r. (c) dL/dt = r x dp/dt, so only the part of the force across r changes L; the radial part is cancelled by the pivot or rod. |
+| 5. Why (philosophy) | Angular quantities measure how fast a direction changes (angle = arc / radius). The parallel part of a displacement changes only length, never direction, so it carries no angular information. Contrast: work and power ask how much of the force is along the motion, so they use the parallel part (dot). |
+| 6. What multiplication means | Number times vector: stretch. Dot: overlap along a line. Cross: oriented area (parallelogram) with a direction. Matrix times vector (the inertia tensor): mixes all components, which is why L is not parallel to omega. Optional: why a vector-valued cross product exists only in 3 and 7 dimensions (stays parked). |
+| 7. Exercises | Compute b_par and b_perp and check both formulas; turn a vector by 90 degrees with n_hat x; reduce L = r x p to the 2D formula; area of a parallelogram from |a x b|. |
+
+Already covered in chat (reuse, do not redo): the proof of v = omega x r for a fixed axis, the parallel and perpendicular table, the 2D reduction check, the 2D-versus-3D explanation.
+
+Pull-in rule: runs in Phase 2, first after E1. It is pulled earlier only if a Phase 3 step (H4 to H7) cannot continue without it.
+
+Related parking lot rows: 1 (pseudovector), 2 (cross product proofs), 22 (this lesson).
 
 ---
 
@@ -186,7 +209,8 @@ LQR, nondimensionalization, noise and sensors, the chapter report, and Chapters 
 | Item | State |
 |---|---|
 | Torque lessons T1 to T5, omega arrow, alpha arrow, torque arrow, 3D torque as three flat torques | taught in chat; owner's notes cover through the 3D torque formula |
-| Chapter 1, Phase 1 (notebook line by line) | NEXT: Part 0, then Part 1A with L1 to L3 |
+| Chapter 1, Phase 1 (notebook line by line) | IN PROGRESS: L1 was taught live first, at the line I_ZZ (Part 1A). Part 0 and the notebook re-run are still to do |
+| L1 detail (inertia tensor, naming of I_zz) | Taught: L = r x p and why, tau and L link, tangential velocity v = omega x r with proof (fixed axis), L = I omega as a matrix, column convention, dumbbell matrix by hand. NEXT: entries of I for a general mass (this is L4 content, so L4 becomes a short recap), then L2 and L3 unchanged. The I_zz equation (rings) is already in the owner's notes |
 | Chapter 1, Phase 3 (build by hand) | after Phase 1 |
 | Chapter 1, Phase 2 (extra concepts) | after Phase 3 (D3), pull-in only if needed |
 
@@ -200,3 +224,4 @@ LQR, nondimensionalization, noise and sensors, the chapter report, and Chapters 
 | 2026-10-14 09:17:54 EDT | Chapter 2 table now lists the MATH440 core topics per stage (2.3 to 2.6). Parked topics noted. |
 | 2026-10-14 09:21:13 EDT | Chapter 3 row now points to the disturbance rule (plan.md v5.2). No lesson changes. |
 | 2026-10-14 09:24:12 EDT | F10 applied in the notebook; Phase 1 now starts with one re-run of the notebook. |
+| 2026-10-16 17:41:24 EDT | Phase 2: lesson E9 added (dot product vs cross product, with outline). Status updated with L1 progress. No change to the execution order. |

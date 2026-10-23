@@ -1,6 +1,6 @@
 # sim2real: Project Plan (for Claude Code)
 
-Status: v5.3, written 2026-10-14 09:24:12 EDT. Replaces v5.2, v5.1, v5.0, v4.9 (v4.9 and v4.8 only added the code-path rule, guardrails and the parking lot; backups are not in `archive/plan/`). Replaces plan v4.5 (not archived separately; v4.5 only added the long Math relearning track that v4.6 removes) and v4.4 (kept in `archive/plan/PLAN_v4.4.MD`; v4.3 is in `archive/plan/PLAN_v4.3.MD`; v4.2 is in `archive/plan/PLAN_v4.2.MD`; v4.1 is in `archive/plan/PLAN_v4.1.MD`; v4 is in `archive/plan/PLAN_v4.MD`). Timestamps in this file use the real local date and time (`date "+%Y-%m-%d %H:%M:%S %Z"`). Older plans and logs are in `archive/plan/` and `sim2real_reference_archive.md` (read them only when a past decision must be revisited).
+Status: v5.4, written 2026-10-17 23:26:07 EDT. Replaces v5.3, v5.2, v5.1, v5.0, v4.9 (v4.9 and v4.8 only added the code-path rule, guardrails and the parking lot; backups are not in `archive/plan/`). Replaces plan v4.5 (not archived separately; v4.5 only added the long Math relearning track that v4.6 removes) and v4.4 (kept in `archive/plan/PLAN_v4.4.MD`; v4.3 is in `archive/plan/PLAN_v4.3.MD`; v4.2 is in `archive/plan/PLAN_v4.2.MD`; v4.1 is in `archive/plan/PLAN_v4.1.MD`; v4 is in `archive/plan/PLAN_v4.MD`). Timestamps in this file use the real local date and time (`date "+%Y-%m-%d %H:%M:%S %Z"`). Older plans and logs are in `archive/plan/` and `sim2real_reference_archive.md` (read them only when a past decision must be revisited).
 
 Labels used in this file:
 - FOUNDATIONAL = a number or choice we make or measure. Not derivable.
@@ -15,7 +15,7 @@ Labels used in this file:
 Read this section first. These are the owner's standing rules.
 
 1. **One piece at a time.** Do not generate scaffolds, packages, bulk files, or "full pipelines" unless asked. The owner wants to read and run one code piece, understand it, then move on.
-2. **Follow the owner's code style.** The reference is `study/tutorial/src/tutorial_pendulum.py`: `# type: ignore` imports, `STEP n:` comment banners made of `─` lines, plain Python lists for logs, a `TIMESTAMP` in every output file name, separate figures with `fig.tight_layout()` and `fig.savefig(...)`, a GIF with a progress bar, `np.savez` with named arrays. No clever abstractions beyond what is needed.
+2. **Follow the owner's code style.** The reference is `study/ch0_tutorial/src/tutorial_pendulum.py`: `# type: ignore` imports, `STEP n:` comment banners made of `─` lines, plain Python lists for logs, a `TIMESTAMP` in every output file name, separate figures with `fig.tight_layout()` and `fig.savefig(...)`, a GIF with a progress bar, `np.savez` with named arrays. No clever abstractions beyond what is needed.
 3. **Explain purpose in comments.** For each step say what we have, what we want, what the step does, and why it is needed.
 4. **Separate DERIVED from FOUNDATIONAL** in comments and explanations. Always include units (write liter as L, the number one as 1).
 5. **Implement first, derive after** (owner's preference for this project). The loop per stage is:
@@ -26,7 +26,7 @@ Read this section first. These are the owner's standing rules.
 6. **Never claim something is verified unless it was run.** State the numbers. If code was not run, say so.
 7. **Ask before changing direction.** Any change to scope, system, or chapter order must be proposed first and logged in Section 12.
 8. **No em dashes** in any output, file, or comment. Use a hyphen or a comma.
-9. **Do not touch** `study/tutorial/` (Chapter 0, finished).
+9. **Do not touch** `study/ch0_tutorial/` (Chapter 0, finished).
 10. Results from notebooks are saved under the notebook's own folder in `result/`.
 11. **Strictly follow the code path (v4.9).** The core path is Section 2A: every core stage ends in a code piece that runs and prints a number or a plot compared with something (MuJoCo, scipy, a theory curve). Anything else (reading lists, side theory, optional directions, edge cases) is PARKED in `study/parking_lot.md` and is not worked on until the owner promotes it. When something interesting comes up, add a row to the parking lot and continue. Course reports are COURSE write-ups, done after the chapter's code works.
 
@@ -61,7 +61,7 @@ Read this section first. These are the owner's standing rules.
 
 | Item | State |
 |---|---|
-| Chapter 0 (intro to MuJoCo and basic physics) | DONE, in `study/tutorial/` |
+| Chapter 0 (intro to MuJoCo and basic physics) | DONE, in `study/ch0_tutorial/` |
 | Plan v4 and reference archive | this file, plus `sim2real_reference_archive.md` |
 | Chapter 1, Stage 1.1 (MuJoCo gimbal rod, checks, plots, GIF) | DONE, notebook `sim2real/ch1_modeling/ch1_modeling.ipynb`. Audited 2026-10-09 12:20:02 EDT (v4.1): geometry, inertia, straightness, growth, energy checks all in the notebook. Owner should re-run it once in Jupyter to refresh saved outputs. |
 | Chapter 1, notebook walkthrough (owner reads the Stage 1.1 notebook part by part, before any hand math) | IN PROGRESS. Part 0 (imports, result folder) and Part 1A (constants) done. Part 1B (XML model) is next, then Part 2 (model checks), 3 (run_fall), 4 (main run and saving), 5 (extra runs and physics checks), 6 (plots), 7 (GIF). The derived constants are being taught one by one: moment of inertia about the center of mass and about the long axis (taught, with the diaginertia naming), the parallel-axis step and OMEGA_UNSTABLE (still to teach). |
@@ -150,16 +150,22 @@ Current tree:
 
 ```
 sim2real-pendulum
-├── README.md
+├── README.md, CLAUDE.md
+├── archive/                        <- older plans and logs
 ├── sim2real
+│   ├── plan.md                     <- this file (not tracked by git)
 │   └── ch1_modeling
 │       ├── ch1_modeling.ipynb      <- MuJoCo notebook (Stage 1.1)
 │       └── result/                 <- created on first run
 └── study
-    └── tutorial                    <- Chapter 0, do not touch
-        ├── notes/basic_physics.pdf
-        ├── result/
-        └── src/tutorial_pendulum.py, tutorial_pendulum_fetch.py
+    ├── study_plan.md, parking_lot.md
+    ├── ch0_tutorial                <- Chapter 0, do not touch
+    │   ├── result/
+    │   └── src/tutorial_pendulum.py, tutorial_pendulum_fetch.py
+    └── ch1_modeling                <- study material, not the code path
+        ├── paper/                  <- reading list PDF (parked)
+        ├── study/sim2real-pendulum.pdf   <- the owner's notes
+        └── src/                    <- exercise notebooks (inertia, torque, spin, dumbbell)
 ```
 
 Conventions:
@@ -285,7 +291,7 @@ Phase 3 corresponds to Stages 1.2 to 1.8 below (and 1.7 numerics for the hand si
 | Products of inertia (off-diagonal entries), why they are 0 for our rod | concept taught 2026-10-10; to be redone at study plan Phase 1 lessons L4 and L5 (at Part 1B), with the BAC-CAB proof in Phase 2 E8; by hand in Stage 1.3 | REDO IN PHASE 1 |
 | Inertia each hinge feels as the rod leans (jx: I_pivot cos^2 q2 + I_zz sin^2 q2, jy: I_pivot); why this explains flag F1 | study plan Phase 3 H4 and H5, then Stages 1.3 to 1.5 | TO DO |
 | Kinetic energy including the translational mass part | study plan Phase 3 H6, then Stage 1.4 | TO DO |
-| Inertia tensor (the 3 x 3 table): definition from L = I omega, link to the covariance matrix (I = trace(S) 1 - S with S the mass-weighted second-moment table), principal axes, diaginertia | lesson 2026-10-10; to be redone from scratch at study plan Phase 1 lessons L4 and L5 (owner's request 2026-10-11), full proof in Phase 2 E8 | REDO IN PHASE 1, BY HAND TO DO in Stage 1.3 |
+| Inertia tensor (the 3 x 3 table): definition from L = I omega, link to the covariance matrix (I = trace(S) 1 - S with S the mass-weighted second-moment table), principal axes, diaginertia | lesson 2026-10-10; redone from scratch (owner's request 2026-10-11). Taught live in L1 on 2026-10-16 and 2026-10-17: v = omega x r proved, L linear in omega, matrix entries I_ab, dumbbell example. Still to do: formulas for all nine entries, principal axes and diaginertia (L4 and L5), full proof in Phase 2 E8 | IN PROGRESS (Phase 1), BY HAND TO DO in Stage 1.3 |
 | Cross product: perpendicular, length |a||b| sin(theta) (area), component formula forced by the rules, anticommutative, not associative, triple products | study plan Phase 2 E2, E4, E6 (full proofs, after the notebook) | TO DO |
 | Right-hand rule: handedness, determinant, why it is a convention, physics does not depend on the hand | study plan Phase 2 E3, E5 (full proofs, after the notebook) | TO DO |
 | Torque and the 3D torque arrow: T1 to T5 taught in chat (what torque is, 2D torque, omega arrow, alpha arrow, torque arrow, 3D torque as three flat torques, rigid-body torque). T5 goes into the owner's notes (study plan Phase 2 E1) and T6 (torque about a new point) is taught in study plan Phase 2 E7 | chat 2026-10-10 and 2026-10-11 | T1 to T5 DONE in chat, T6 TO DO at E7 |
@@ -451,6 +457,7 @@ Later, for Chapter 3 (all MEMORY): PPO (Schulman 2017), the Isaac Gym paper (Mak
 
 | Date and time | Change |
 |---|---|
+| 2026-10-17 23:26:07 EDT | v5.4: housekeeping, no stage changed. Folder paths corrected to the current layout (`study/tutorial/` is now `study/ch0_tutorial/`; folder tree rewritten, `study/ch1_modeling/` added). Inertia tensor row marked IN PROGRESS. Noted that this file is not tracked by git. Notebook state checked: F10 edit is in `ch1_modeling.ipynb`, outputs are cleared, so F10 stays open until the re-run from a restarted kernel. |
 | 2026-10-14 09:24:12 EDT | v5.3: flag F10 applied in `ch1_modeling.ipynb` (capsule size now uses ROD_RADIUS; I_ZZ was already computed). Not re-run yet (MuJoCo not available where the edit was made). Parameter table row for I_zz updated. |
 | 2026-10-14 09:21:13 EDT | v5.2: added the disturbance rule (Section 2A): no result counts as balanced from an undisturbed run alone; fixed disturbance suite for evaluation; disturbance training for Chapter 3 (long episodes, random initial states, random impulse pushes, noise and delay, torque penalty). Stages 1.9, 1.11, tiers 2 and 3, Section 8 metrics and Section 11 updated. No stage added or removed. |
 | 2026-10-14 09:17:54 EDT | v5.1: MATH440 core topics added to Chapter 2: LS and MN (2.3), SVD and truncated SVD (2.4), Tikhonov with its Levenberg-Marquardt link and the L-curve (2.5), covariance link to truncated SVD (2.6). Landweber, Kaczmarz, Lanczos stay parked. Section 2A and Section 7 updated; no stage added or removed. |
