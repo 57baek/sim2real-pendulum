@@ -1,6 +1,6 @@
 # sim2real: Parking Lot (interesting, not on the critical path)
 
-Started 2026-10-11. Last updated: 2026-10-16 17:41:24 EDT. Things that came up while studying that are interesting but not needed for D1 to D3 (notebook understood, hand tip function, hand 3D simulator). Nothing here blocks the project. Review after the hand simulator works, or earlier if one becomes needed.
+Started 2026-10-11. Last updated: 2026-10-23 14:21:47 EDT. Things that came up while studying that are interesting but not needed for D1 to D3 (notebook understood, hand tip function, hand 3D simulator). Nothing here blocks the project. Review after the hand simulator works, or earlier if one becomes needed.
 
 ## How it works
 
@@ -34,6 +34,7 @@ Started 2026-10-11. Last updated: 2026-10-16 17:41:24 EDT. Things that came up w
 | 20 | Kaczmarz iteration (row-action method) | MATH440 topics vs Chapter 2 | Same idea as stochastic gradient descent on a linear system | No | PARKED |
 | 21 | Lanczos inversion (Krylov methods for large linear problems) | MATH440 topics vs Chapter 2 | Makes inversion feasible when the matrix is huge | No (matrix is tiny here) | PARKED |
 | 22 | Dot product vs cross product as a special lesson (what each keeps: parallel vs perpendicular part; 2D product as the 3D cross product on the z axis; why v, L, tau only see the perpendicular part) | L1, asked by the owner (E9 in study_plan.md) | The unifying idea behind torque, angular momentum and the inertia tensor | No (the code path only uses v = omega x r and L = r x p, both proved) | PARKED |
+| 23 | Why the order is v = omega x r, L = r x p, tau = r x F: it is forced by two handedness conventions (right-hand rule for omega, x cross y = +z for the cross product). Same hand for both gives omega x r; mixed hands would give r x omega. Includes counterclockwise as seen from the tip of the omega arrow, and why swapping axis labels changes the physics too | L1, asked by the owner (covered informally in chat on 2026-10-17; rigorous version at E3, E5) | Shows exactly which part of the formulas is convention and which is physics | No (the code path only uses v = omega x r, already proved) | PARKED |
 
 ## Change log
 
@@ -44,3 +45,4 @@ Started 2026-10-11. Last updated: 2026-10-16 17:41:24 EDT. Things that came up w
 | 2026-10-12 09:46:25 EDT | Row 18 added (tier 4 imitation, parked by the owner). Timestamp and change log added. |
 | 2026-10-14 09:14:54 EDT | Rows 19 to 21 added (Landweber, Kaczmarz, Lanczos from MATH440, parked). |
 | 2026-10-16 17:41:24 EDT | Row 22 added (dot vs cross product special lesson, plan in study_plan.md as E9). |
+| 2026-10-23 14:21:47 EDT | Row 23 added (cross product order, handedness, right-hand rule; parked by the owner; related rows 1, 2, 22). |
