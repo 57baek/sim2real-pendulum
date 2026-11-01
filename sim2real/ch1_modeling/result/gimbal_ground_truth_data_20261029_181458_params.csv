@@ -1,0 +1,6 @@
+name,value
+true_gravity,9.81
+true_rod_length,1
+true_rod_mass,1
+true_damping,0.04
+true_frictionloss,0.02

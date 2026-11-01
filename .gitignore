@@ -20,3 +20,4 @@ dist/
 # Log
 MUJOCO_LOG.TXT
 archive/
+waitingroom.ipynb
